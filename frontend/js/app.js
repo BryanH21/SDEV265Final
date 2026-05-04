@@ -141,6 +141,7 @@ function renderTable() {
         <td>
           <div class="action-cell">
             <button class="icon-btn" title="Edit client" onclick="openEditModal('${c.id}')">✎</button>
+            <button class="icon-btn" title="Delete client" onclick="deleteClient('${c.id}')">✕</button>
           </div>
         </td>
       </tr>
@@ -334,4 +335,21 @@ function toast(msg) {
   el.style.display = 'block';
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.style.display = 'none', 2800);
+}
+
+async function deleteClient(id) {
+  const c = allClients.find(x => x.id === id);
+  if (!c) return;
+
+  if (!confirm(`Delete ${c.first_name} ${c.last_name}? This cannot be undone.`)) return;
+
+  try {
+    await apiFetch(`${API}/${id}`, { method: 'DELETE' });
+    allClients = allClients.filter(x => x.id !== id);
+    toast('Client deleted.');
+    renderTable();
+    updateStats();
+  } catch (err) {
+    toast(`Error: ${err.message}`);
+  }
 }
